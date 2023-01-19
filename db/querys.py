@@ -120,6 +120,35 @@ def fix_facturas(consecutivo,data, ip):
     okText = "Producto actualizado exitosamente!"
     Query(sql, errorText, "1", "editar",data, okText, ip=ip)
 
+def leer_ubi():
+    sql =f"SELECT Placa from Ubicaciones"
+    errorText = "Error leyendo valor pagado "
+    data = Query(sql, errorText, "*", "leer", [], "",ip= ip).data
+    return data
+
+#----------Mensualidades ---------
+def leer_mensualidades(ip):
+    sql =f"SELECT * from mensualidades"
+    errorText = "Error leyendo mensualidades"
+    data = Query(sql, errorText, "*", "leer", [], "",ip= ip).data
+    return data
+
+def actualizar_men(ip,data):
+    #SQL
+    sql = f"""UPDATE mensualidades SET Valor = %s
+                                WHERE Placa = %s
+                        """
+    errorText = "Error actualizando mensualida!"
+    okText = "Producto actualizado exitosamente!"
+    conn = create_connection(ip)
+    try:
+        cursor = conn.cursor()
+        cursor.executemany(sql, data)
+    except:
+        print(errorText)
+    finally:
+        cursor.close()
+        conn.close()
 
 
 

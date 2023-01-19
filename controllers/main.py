@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QMessageBox,QFileDialog
 from PySide6.QtCore import Qt
 from PySide6 import QtCore
 from ui_files.main_db import Ui_Form
-from msg_boxes.msg_box import confirmationBox,errorBoxes,okBoxes, questionBox
+from msg_boxes.msg_box import confirmationBox,errorBoxes,okBoxes, questionBox,warningInfo
 from db import querys
 import os
 import platform
@@ -16,7 +16,8 @@ class MainWindow(QWidget, Ui_Form):
         #BTN
         self.btn_cerrar.clicked.connect(lambda:self.close())
         self.btn_crear.clicked.connect(self.crear)
-        self.ip_line.setText("192.168.10.133")
+        self.btn_men_aplicar.clicked.connect(self.actualizar_valor_mensualidades)
+        self.ip_line.setText("localhost")
         self.progreso = 0
 
     def crear(self):
@@ -76,6 +77,44 @@ class MainWindow(QWidget, Ui_Form):
                     factura_inicial += 1
         else:
             pass
+    def actualizar_valor_mensualidades(self):
+        ip = self.ip_line.text()
+        placas = []
+        try:
+            valor = int(self.valor_men_lineEdit.text())
+        except:
+            #warningInfo("INFO", "El valor por defecto asignado a las mensualidades es 0")
+            valor = 0
+        tipo = self.tipo_men_comboBox.currentText()
+        data_men = querys.leer_mensualidades(ip)
+        placas = [placa[0] for placa in data_men]
+        carros,motos = self.tipo_vehiculo(placas)# devuelve una lista con las placas de carro y motos a actulizar segun el caso
+        
+        if tipo == 'V':
+            data = [(valor, placa) for placa in carros]
+            print(data)
+            querys.actualizar_men(ip, data)
+        else:
+            data = [(valor, placa) for placa in motos]
+            querys.actualizar_men(ip, data)
+        
+        okBoxes('Actualización', 'Los valores de la mensualidad se aplicaron correctamente')
+
+
+        
+        #print(placas)
+    def tipo_vehiculo(self, placas):
+        carros = []
+        motos = []
+        for placa in placas:
+            if placa[5].isnumeric() == True:
+                carros.append(placa)
+            else:
+                motos.append(placa)
+        
+        #print(f"Carros: {carros}")
+        #print(f"Motos: {motos}")
+        return carros, motos
 
     def aumentar_progreso(self, add_progreso= 5):
         #self.progreso += add_progreso

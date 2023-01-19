@@ -3,7 +3,7 @@ from mysql import connector
 def create_connection( ip='192.168.10.133', db ='parqueadero' ):
     config = {
     'user': 'root',
-    'password' : '553051922428536000',
+    'password' : '123456789',
     'host' : ip,
     'database': db
     }
